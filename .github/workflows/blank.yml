@@ -1,13 +1,29 @@
-- name: Start SSH agent and add key
-  env:
-    PROD_KEY: ${{ secrets.PROD_KEY }}
-  run: |
-    eval "$(ssh-agent -s)"
-    echo "$PROD_KEY" | ssh-add -
-    
-- name: Connect to EC2 and create directory
-  env:
-    PROD_IP: ${{ secrets.PROD_IP }}
-    PROD_USERNAME: ${{ secrets.PROD_USERNAME }}
-  run: |
-    ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"
+name: Create Directory on EC2
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-directory:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start SSH agent and add key
+        env:
+          PROD_KEY: ${{ secrets.PROD_KEY }}
+        run: |
+          eval "$(ssh-agent -s)"
+          echo "$PROD_KEY" | ssh-add -
+
+      - name: Connect to EC2 and create directory
+        env:
+          PROD_IP: ${{ secrets.PROD_IP }}
+          PROD_USERNAME: ${{ secrets.PROD_USERNAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"

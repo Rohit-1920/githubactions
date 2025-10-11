@@ -1,30 +1,13 @@
-name: Create Directory on EC2
-
-on:
-  workflow_dispatch:  # manual trig
-  push:
-    branches:
-      - main  # on push to main branch
-
-jobs:
-  create-directory:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create directory on EC2
-        env:
-          PROD_KEY: ${{ secrets.PROD_KEY }}
-          PROD_IP: ${{ secrets.PROD_IP }}
-          PROD_USERNAME: ${{ secrets.PROD_USERNAME }}
-        run: |
-          echo "$PROD_KEY" | base64 -d > private_key.pem
-          chmod 600 private_key.pem
-
-          echo "Connecting to EC2 instance (${PROD_USERNAME}@${PROD_IP}) and creating directory..."
-
-          ssh -vvv -o StrictHostKeyChecking=no -i private_key.pem ${PROD_USERNAME}@${PROD_IP} "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"
-
-          rm -f private_key.pem
+- name: Start SSH agent and add key
+  env:
+    PROD_KEY: ${{ secrets.PROD_KEY }}
+  run: |
+    eval "$(ssh-agent -s)"
+    echo "$PROD_KEY" | ssh-add -
+    
+- name: Connect to EC2 and create directory
+  env:
+    PROD_IP: ${{ secrets.PROD_IP }}
+    PROD_USERNAME: ${{ secrets.PROD_USERNAME }}
+  run: |
+    ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"

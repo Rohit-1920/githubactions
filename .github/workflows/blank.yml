@@ -28,3 +28,6 @@ jobs:
           echo "Connecting to EC2 instance at ${PROD_IP}..."
           sshpass -p "${PROD_PASSWORD}" ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} \
           "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"
+          sudo apt install nginx -y
+          systemctl start nginx
+          systemctl enable nginx

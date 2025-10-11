@@ -1,4 +1,4 @@
-name: Create Directory on EC2 (Password Auth)
+name: Setup EC2 Server (Ubuntu + Password Auth + Nginx)
 
 on:
   workflow_dispatch:
@@ -7,24 +7,43 @@ on:
       - main
 
 jobs:
-  create-directory:
+  setup-ec2:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install sshpass
+      - name: Install sshpass on runner
         run: |
-          sudo apt install nginx -y
-          systemctl start nginx
-          systemctl enable nginx
-      - name: Connect to EC2 using password and create directory
+          sudo apt-get update -y
+          sudo apt-get install -y sshpass
+
+      - name: Connect to EC2 (Ubuntu) and install Nginx
         env:
           PROD_IP: ${{ secrets.PROD_IP }}
           PROD_USERNAME: ${{ secrets.PROD_USERNAME }}
           PROD_PASSWORD: ${{ secrets.PROD_PASSWORD }}
         run: |
-          echo "Connecting to EC2 instance at ${PROD_IP}..."
-          sshpass -p "${PROD_PASSWORD}" ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} \
-          "mkdir -p ~/my_app_dir1 && ls -ld ~/my_app_dir1"
+          echo "Connecting to EC2 instance at ${PROD_IP} as ${PROD_USERNAME}..."
+
+          sshpass -p "${PROD_PASSWORD}" ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} "
+            echo '✅ Connected to EC2 Ubuntu server.';
+
+            # Update system and install Nginx
+            apt-get update -y;
+            apt-get install -y nginx;
+
+            # Enable and start Nginx service
+            systemctl enable nginx;
+            systemctl start nginx;
+
+            # Create a directory for your application
+            mkdir -p ~/my_app_dir1;
+
+            # Check Nginx status
+            echo '🔍 Checking Nginx status...';
+            systemctl status nginx --no-pager;
+
+            echo '✅ Setup complete: Directory created and Nginx installed successfully.';
+          "

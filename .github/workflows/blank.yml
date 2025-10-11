@@ -1,5 +1,4 @@
-#1
-name: Create Directory on EC2
+name: Create Directory on EC2 (Password Auth)
 
 on:
   workflow_dispatch:
@@ -15,16 +14,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Start SSH agent and add key
-        env:
-          PROD_KEY: ${{ secrets.PROD_KEY }}
+      - name: Install sshpass
         run: |
-          eval "$(ssh-agent -s)"
-          echo "$PROD_KEY" | ssh-add -
+          sudo apt-get update -y
+          sudo apt-get install -y sshpass
 
-      - name: Connect to EC2 and create directory
+      - name: Connect to EC2 using password and create directory
         env:
           PROD_IP: ${{ secrets.PROD_IP }}
           PROD_USERNAME: ${{ secrets.PROD_USERNAME }}
+          PROD_PASSWORD: ${{ secrets.PROD_PASSWORD }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"
+          echo "Connecting to EC2 instance at ${PROD_IP}..."
+          sshpass -p "${PROD_PASSWORD}" ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} \
+          "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"

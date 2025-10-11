@@ -16,9 +16,7 @@ jobs:
 
       - name: Install sshpass
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y sshpass
-          sudo apt install nginx -y
+          apt install nginx -y
           systemctl start nginx
           systemctl enable nginx
       - name: Connect to EC2 using password and create directory
@@ -29,4 +27,4 @@ jobs:
         run: |
           echo "Connecting to EC2 instance at ${PROD_IP}..."
           sshpass -p "${PROD_PASSWORD}" ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} \
-          "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"
+          "mkdir -p ~/my_app_dir1 && ls -ld ~/my_app_dir1"

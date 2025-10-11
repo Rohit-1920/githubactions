@@ -1,10 +1,10 @@
 name: Create Directory on EC2
 
 on:
-  workflow_dispatch:  # allows manual trigger
+  workflow_dispatch:  # manual trigger
   push:
     branches:
-      - main  # run on main branch 
+      - main  # on push to main branch
 
 jobs:
   create-directory:
@@ -20,19 +20,11 @@ jobs:
           PROD_IP: ${{ secrets.PROD_IP }}
           PROD_USERNAME: ${{ secrets.PROD_USERNAME }}
         run: |
-          set -e  # stop if any command fails
-
-          echo "Writing SSH key to file..."
           echo "$PROD_KEY" > private_key.pem
           chmod 600 private_key.pem
 
-          DIR_NAME="my_app_dir"
-          echo "Connecting to EC2 instance (${PROD_USERNAME}@${PROD_IP}) and creating directory: $DIR_NAME"
+          echo "Connecting to EC2 instance (${PROD_USERNAME}@${PROD_IP}) and creating directory..."
 
-          ssh -vvv -o StrictHostKeyChecking=no -i private_key.pem ${PROD_USERNAME}@${PROD_IP} "mkdir -p ~/${DIR_NAME} && ls -ld ~/${DIR_NAME}"
+          ssh -vvv -o StrictHostKeyChecking=no -i private_key.pem ${PROD_USERNAME}@${PROD_IP} "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"
 
-          echo "✅ Directory created successfully on EC2."
-
-      - name: Cleanup
-        if: always()
-        run: rm -f private_key.pem
+          rm -f private_key.pem

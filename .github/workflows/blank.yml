@@ -1,7 +1,7 @@
 name: Create Directory on EC2
 
 on:
-  workflow_dispatch:  # manual trigge
+  workflow_dispatch:  # manual trigg
   push:
     branches:
       - main  # on push to main branch

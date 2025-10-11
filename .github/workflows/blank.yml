@@ -16,7 +16,7 @@ jobs:
 
       - name: Install sshpass
         run: |
-          apt install nginx -y
+          sudo apt install nginx -y
           systemctl start nginx
           systemctl enable nginx
       - name: Connect to EC2 using password and create directory

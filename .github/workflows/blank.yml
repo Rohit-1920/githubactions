@@ -18,7 +18,9 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y sshpass
-
+          sudo apt install nginx -y
+          systemctl start nginx
+          systemctl enable nginx
       - name: Connect to EC2 using password and create directory
         env:
           PROD_IP: ${{ secrets.PROD_IP }}
@@ -28,6 +30,3 @@ jobs:
           echo "Connecting to EC2 instance at ${PROD_IP}..."
           sshpass -p "${PROD_PASSWORD}" ssh -o StrictHostKeyChecking=no ${PROD_USERNAME}@${PROD_IP} \
           "mkdir -p ~/my_app_dir && ls -ld ~/my_app_dir"
-          sudo apt install nginx -y
-          systemctl start nginx
-          systemctl enable nginx

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:  # allows manual trigger
   push:
     branches:
-      - main  # run on main branch push (optional)
+      - main  # run on main branch push 
 
 jobs:
   create-directory:
